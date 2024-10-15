@@ -96,7 +96,7 @@ async function handleFollowUpQuestion(input: string): Promise<string> {
   const aiResponse = await openai.chat.completions.create({
     model: 'gpt-4o-mini',
     messages: [
-      { role: 'system', content: '通常のチャットを行います' },
+      { role: 'system', content: '追加の質問に答えてください。' },
       { role: 'user', content: input },
     ],
   });
