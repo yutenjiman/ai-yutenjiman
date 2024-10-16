@@ -4,10 +4,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useState, useRef } from 'react';
+import { BudgetSelect } from '@/components/ui/BudgetSelect';
+import { LocationInput } from '@/components/ui/LocationInput';
+import { CuisineSelect } from '@/components/ui/CuisineSelect';
+import { SituationSelect } from '@/components/ui/SituationSelect';
 
 export const formSchema = z.object({
   budget: z.string().optional(),
@@ -31,9 +31,6 @@ export function InitialModal({ onStartChat }: InitialModalProps) {
     console.log("送信されるデータ:", data); 
     onStartChat(data);
   };
-
-  const [cuisineSearch, setCuisineSearch] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const cuisines = [
     { value: 'japanese', label: '日本料理' },
@@ -151,67 +148,14 @@ export function InitialModal({ onStartChat }: InitialModalProps) {
     { value: 'auberge', label: 'オーベルジュ' },
   ];
 
-  const filteredCuisines = cuisines.filter(cuisine => cuisine.label.includes(cuisineSearch));
-
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-4">好みを教えてな</h2>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div>
-          <Label htmlFor="budget">予算（任意）</Label>
-          <Select onValueChange={(value) => setValue('budget', value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="予算を選択" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="~5000">～5,000円</SelectItem>
-              <SelectItem value="5000-10000">5,000円～10,000円</SelectItem>
-              <SelectItem value="10000-20000">10,000円～20,000円</SelectItem>
-              <SelectItem value="20000~">20,000円～</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label htmlFor="location">場所または最寄り駅（任意）</Label>
-          <Input id="location" {...register('location')} placeholder="例: 都内, 祐天寺駅" />
-        </div>
-        <div>
-          <Label htmlFor="cuisine">料理ジャンル（任意）</Label>
-          <Select onValueChange={(value) => setValue('cuisine', value)}>
-            <SelectTrigger onClick={() => setTimeout(() => inputRef.current?.focus(), 0)}>
-              <SelectValue placeholder="料理ジャンルを選択" />
-            </SelectTrigger>
-            <SelectContent>
-              <Input
-                ref={inputRef}
-                placeholder="料理ジャンルを検索"
-                value={cuisineSearch}
-                onChange={(e) => setCuisineSearch(e.target.value)}
-                className="mb-2"
-              />
-              {filteredCuisines.map(cuisine => (
-                <SelectItem key={cuisine.value} value={cuisine.value}>
-                  {cuisine.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label htmlFor="situation">シチュエーション（任意）</Label>
-          <Select onValueChange={(value) => setValue('situation', value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="シチュエーションを選択" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="date">デート</SelectItem>
-              <SelectItem value="family">家族</SelectItem>
-              <SelectItem value="friends">友人</SelectItem>
-              <SelectItem value="business">ビジネス</SelectItem>
-              <SelectItem value="solo">一人</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <BudgetSelect setValue={(field, value) => setValue(field as "budget", value)} />
+        <LocationInput register={(name) => register(name as "location")} />
+        <CuisineSelect setValue={(field, value) => setValue(field as "cuisine", value)} cuisines={cuisines} />
+        <SituationSelect setValue={(field, value) => setValue(field as "situation", value)} />
         <Button type="submit">チャットを開始</Button>
       </form>
     </div>
