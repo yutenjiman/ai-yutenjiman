@@ -13,7 +13,7 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
     <div>
       <Label htmlFor="cuisine">料理ジャンル（任意）</Label>
       <Select onValueChange={(value) => setValue('cuisine', value)}>
-        <SelectTrigger onClick={() => setTimeout(() => inputRef.current?.focus(), 0)}>
+        <SelectTrigger onMouseDown={(e) => e.preventDefault()} onClick={() => setTimeout(() => inputRef.current?.focus(), 0)}>
           <SelectValue placeholder="料理ジャンルを選択" />
         </SelectTrigger>
         <SelectContent>
