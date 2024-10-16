@@ -23,31 +23,42 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     console.log("API ルートで受け取ったデータ:", body);
 
-    let input: string;
-    let budget: string, location: string, cuisine: string, situation: string;
+    const result = await processRequest(body);
+    return NextResponse.json(result);
+  } catch (error) {
+    console.error('OpenAI APIエラー:', error);
+    return NextResponse.json({ error: 'AI推薦エラー' }, { status: 500 });
+  } finally {
+    processingRequests.delete(requestId);
+  }
+}
 
-    if ('input' in body) {
-      input = body.input;
-      console.log("入力されたメッセージ:", input);
+async function processRequest(body: any) {
+  let input: string;
+  let budget: string, location: string, cuisine: string, situation: string;
 
-      const isLookingForRestaurant = await checkIfLookingForRestaurant(input);
+  if ('input' in body) {
+    input = body.input;
+    console.log("入力されたメッセージ:", input);
 
-      if (isLookingForRestaurant) {
-        console.log("飲食店を探していると判断されました。");
+    const isLookingForRestaurant = await checkIfLookingForRestaurant(input);
 
-        location = body.location || '指定なし';
-        situation = body.situation || '指定なし';
+    if (isLookingForRestaurant) {
+      console.log("飲食店を探していると判断されました。");
 
-        const { data: restaurants, error } = await supabase
-          .from('restaurants')
-          .select('*');
+      location = body.location || '指定なし';
+      situation = body.situation || '指定なし';
 
-        if (error) {
-          console.error('データ取得エラー:', error);
-          return NextResponse.json({ error: 'データ取得エラー' }, { status: 500 });
-        }
+      const { data: restaurants, error } = await supabase
+        .from('restaurants')
+        .select('*');
 
-        const prompt = `
+      if (error) {
+        console.error('データ取得エラー:', error);
+        return { error: 'データ取得エラー' };
+      }
+
+      const prompt = `
 ユーザーのリクエストに基づいて、以下の情報を考慮して最適なレストランを選び、その理由と共に推薦してください：
 
 - ユーザーのインプット: ${input}
@@ -70,34 +81,33 @@ ${JSON.stringify(restaurants, null, 2)}
 **地図リンク**：[リンクテキスト](googlemap_url)
 `;
 
-        const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-        const aiResponse = await openai.chat.completions.create({
-          model: 'gpt-4o-mini',
-          messages: [
-            { role: 'system', content: 'レストランを推薦してください' },
-            { role: 'user', content: prompt },
-          ],
-        });
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      const aiResponse = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: 'レストランを推薦してください' },
+          { role: 'user', content: prompt },
+        ],
+      });
 
-        let recommendation = aiResponse.choices[0].message.content;
+      let recommendation = aiResponse.choices[0].message.content;
 
-        if (!recommendation) {
-          throw new Error('AIの応答がnullです');
-        }
+      if (!recommendation) {
+        throw new Error('AIの応答がnullです');
+      }
 
-        // MarkdownリンクをHTMLリンクに変換し、テキストを「こちら」に固定
-        recommendation = recommendation.replace(
-          /\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g,
-          '<a href="$2" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">こちら</a>'
-        );
+      recommendation = recommendation.replace(
+        /\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g,
+        '<a href="$2" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">こちら</a>'
+      );
 
-        console.log("AI推薦結果:", recommendation);
+      console.log("AI推薦結果:", recommendation);
 
-        return NextResponse.json({ recommendation });
-      } else {
-        console.log("飲食店を探していないと判断されました。");
+      return { recommendation };
+    } else {
+      console.log("飲食店を探していないと判断されました。");
 
-        const prompt = `
+      const prompt = `
 ユーザーのインプットに基づいて、祐天寺マンの口調で返答してください：
 
 - ユーザーのインプット: ${input}
@@ -108,50 +118,50 @@ ${JSON.stringify(restaurants, null, 2)}
 - 基本的に祐天寺マンの投稿内容を参考にして文章を考えてください。
 `;
 
-        const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-        const aiResponse = await openai.chat.completions.create({
-          model: 'gpt-4o-mini',
-          messages: [
-            { role: 'system', content: '祐天寺マンの口調で返答してください' },
-            { role: 'user', content: prompt },
-          ],
-        });
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      const aiResponse = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: '祐天寺マンの口調で返答してください' },
+          { role: 'user', content: prompt },
+        ],
+      });
 
-        const response = aiResponse.choices[0].message.content;
+      const response = aiResponse.choices[0].message.content;
 
-        if (!response) {
-          throw new Error('AIの応答がnullです');
-        }
-
-        console.log("AIの返答:", response);
-
-        return NextResponse.json({ response });
+      if (!response) {
+        throw new Error('AIの応答がnullです');
       }
-    } else {
-      ({ budget, location, cuisine, situation } = body);
-      input = `予算: ${budget || '指定なし'}, 場所: ${location || '指定なし'}, ジャンル: ${cuisine || '指定なし'}, シチュエーション: ${situation || '指定なし'}`;
+
+      console.log("AIの返答:", response);
+
+      return { response };
     }
+  } else {
+    ({ budget, location, cuisine, situation } = body);
+    input = `予算: ${budget || '指定なし'}, 場所: ${location || '指定なし'}, ジャンル: ${cuisine || '指定なし'}, シチュエーション: ${situation || '指定なし'}`;
+  }
 
-    const { error: logError } = await supabase
-      .from('user_logs')
-      .insert([{ budget, location, genre: cuisine, situation }]);
+  const { error: logError } = await supabase
+    .from('user_logs')
+    .insert([{ budget, location, genre: cuisine, situation }]);
 
-    if (logError) {
-      console.error('ログ保存エラー:', logError);
-      return NextResponse.json({ error: 'ログ保存エラー' }, { status: 500 });
-    }
+  if (logError) {
+    console.error('ログ保存エラー:', logError);
+    return { error: 'ログ保存エラー' };
+  }
 
-    const { data: restaurants, error } = await supabase
-      .from('restaurants')
-      .select('*');
+  const { data: restaurants, error } = await supabase
+    .from('restaurants')
+    .select('*');
 
-    if (error) {
-      console.error('データ取得エラー:', error);
-      return NextResponse.json({ error: 'データ取得エラー' }, { status: 500 });
-    }
+  if (error) {
+    console.error('データ取得エラー:', error);
+    return { error: 'データ取得エラー' };
+  }
 
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    const prompt = `
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const prompt = `
 ${input}
 
 以下のレストランリストから、上記の条件に最も適したレストランを選び、その理由と共に推薦してください：
@@ -171,35 +181,28 @@ ${JSON.stringify(restaurants, null, 2)}
 **地図リンク**：[リンクテキスト](googlemap_url)
 `;
 
-    const aiResponse = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: 'レストランを推薦してください' },
-        { role: 'user', content: prompt },
-      ],
-    });
+  const aiResponse = await openai.chat.completions.create({
+    model: 'gpt-4o-mini',
+    messages: [
+      { role: 'system', content: 'レストランを推薦してください' },
+      { role: 'user', content: prompt },
+    ],
+  });
 
-    let recommendation = aiResponse.choices[0].message.content;
+  let recommendation = aiResponse.choices[0].message.content;
 
-    if (!recommendation) {
-      throw new Error('AIの応答がnullです');
-    }
-
-    // MarkdownリンクをHTMLリンクに変換し、テキストを「こちら」に固定
-    recommendation = recommendation.replace(
-      /\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g,
-      '<a href="$2" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">こちら</a>'
-    );
-
-    console.log("AI推薦結果:", recommendation);
-
-    return NextResponse.json({ recommendation });
-  } catch (error) {
-    console.error('OpenAI APIエラー:', error);
-    return NextResponse.json({ error: 'AI推薦エラー' }, { status: 500 });
-  } finally {
-    processingRequests.delete(requestId);
+  if (!recommendation) {
+    throw new Error('AIの応答がnullです');
   }
+
+  recommendation = recommendation.replace(
+    /\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g,
+    '<a href="$2" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">こちら</a>'
+  );
+
+  console.log("AI推薦結果:", recommendation);
+
+  return { recommendation };
 }
 
 async function checkIfLookingForRestaurant(input: string): Promise<boolean> {
@@ -208,7 +211,7 @@ async function checkIfLookingForRestaurant(input: string): Promise<boolean> {
   const aiResponse = await openai.chat.completions.create({
     model: 'gpt-4o-mini',
     messages: [
-      { role: 'system', content: 'ユーザーが飲食店を探しているかどうかを判断してください。飲食店を探している場合はtrueを返してください。例えば二次会の場所を教えて。や他の飲食店を教えて。ビールが充実しているお店を教えて。など一般的に考えて飲食店を探しているかを基準としてください。' },
+      { role: 'system', content: 'ユーザーが飲食店を探しているかどうかを判断してください。飲食店を探している場合はtrueを返してください。例えば二次会の場所を教えて。や他の飲食店を教えて。ビールが充実しているお店を教えて。など一般的に考えて飲食店を探しているかを基準としてください。また、違う場合はfalseとだけ返してください。' },
       { role: 'user', content: input },
     ],
   });
