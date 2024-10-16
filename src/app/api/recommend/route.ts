@@ -10,6 +10,14 @@ const supabase = createClient(
 
 const processingRequests = new Set();
 
+type RequestBody = {
+  input?: string;
+  budget?: string;
+  location?: string;
+  cuisine?: string;
+  situation?: string;
+};
+
 export async function POST(req: NextRequest) {
   const requestId = uuidv4();
 
@@ -20,7 +28,7 @@ export async function POST(req: NextRequest) {
   processingRequests.add(requestId);
 
   try {
-    const body = await req.json();
+    const body: RequestBody = await req.json();
     console.log("API ルートで受け取ったデータ:", body);
 
     const result = await processRequest(body);
@@ -33,12 +41,12 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function processRequest(body: any) {
+async function processRequest(body: RequestBody) {
   let input: string;
   let budget: string, location: string, cuisine: string, situation: string;
 
   if ('input' in body) {
-    input = body.input;
+    input = body.input || '';
     console.log("入力されたメッセージ:", input);
 
     const isLookingForRestaurant = await checkIfLookingForRestaurant(input);
@@ -138,8 +146,11 @@ ${JSON.stringify(restaurants, null, 2)}
       return { response };
     }
   } else {
-    ({ budget, location, cuisine, situation } = body);
-    input = `予算: ${budget || '指定なし'}, 場所: ${location || '指定なし'}, ジャンル: ${cuisine || '指定なし'}, シチュエーション: ${situation || '指定なし'}`;
+    budget = body.budget || '指定なし';
+    location = body.location || '指定なし';
+    cuisine = body.cuisine || '指定なし';
+    situation = body.situation || '指定なし';
+    input = `予算: ${budget}, 場所: ${location}, ジャンル: ${cuisine}, シチュエーション: ${situation}`;
   }
 
   const { error: logError } = await supabase
