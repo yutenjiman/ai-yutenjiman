@@ -23,6 +23,10 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
             value={cuisineSearch}
             onChange={(e) => setCuisineSearch(e.target.value)}
             className="mb-2"
+            // onBlur イベントを無視する
+            onBlur={(e) => {
+              e.preventDefault();
+            }}
           />
           {filteredCuisines.map(cuisine => (
             <SelectItem key={cuisine.value} value={cuisine.value}>
