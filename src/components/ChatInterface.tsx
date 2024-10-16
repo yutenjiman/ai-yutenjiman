@@ -228,7 +228,7 @@ export function ChatInterface({ userPreferences }: ChatInterfaceProps) {
 
       setMessages([
         { id: 1, content: initialMessage, sender: 'user' },
-        { id: 2, content: 'ちょっと待ってな......', sender: 'ai' }
+        { id: 2, content: 'ちょっと待ってな...', sender: 'ai' }
       ]);
 
       console.log('Sending initial request:', userPreferences);
@@ -262,7 +262,7 @@ export function ChatInterface({ userPreferences }: ChatInterfaceProps) {
       sender: 'user',
     };
 
-    setMessages(prev => [...prev, userMessage, { id: messages.length + 2, content: 'ちょっと待ってな......', sender: 'ai' }]);
+    setMessages(prev => [...prev, userMessage, { id: messages.length + 2, content: 'ちょっと待ってな...', sender: 'ai' }]);
     const currentInput = input;
     setInput('');
 
