@@ -27,6 +27,10 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
             onBlur={(e) => {
               e.preventDefault();
             }}
+            // onFocus イベントを追加して、フォーカスを適切に管理
+            onFocus={(e) => {
+              e.stopPropagation();
+            }}
           />
           {filteredCuisines.map(cuisine => (
             <SelectItem key={cuisine.value} value={cuisine.value}>
