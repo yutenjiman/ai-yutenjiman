@@ -118,7 +118,7 @@ ${JSON.stringify(restaurants, null, 2)}
           ],
         });
 
-        let response = aiResponse.choices[0].message.content;
+        const response = aiResponse.choices[0].message.content;
 
         if (!response) {
           throw new Error('AIの応答がnullです');
@@ -222,24 +222,4 @@ async function checkIfLookingForRestaurant(input: string): Promise<boolean> {
 
   // AIの応答を解析して、飲食店を探しているかどうかを判断
   return content.toLowerCase().includes('true');
-}
-
-async function handleFollowUpQuestion(input: string): Promise<string> {
-  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-  const aiResponse = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
-    messages: [
-      { role: 'system', content: '追加の質問に答えてください。' },
-      { role: 'user', content: input },
-    ],
-  });
-
-  const content = aiResponse.choices[0].message.content;
-
-  if (content === null) {
-    throw new Error('AIの応答がnullです');
-  }
-
-  return content;
 }

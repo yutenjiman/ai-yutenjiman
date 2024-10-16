@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { marked } from 'marked';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import Image from 'next/image';
 
 type Message = {
   id: number;
@@ -167,10 +168,12 @@ export function ChatInterface({ userPreferences }: ChatInterfaceProps) {
               }`}
             >
               {message.sender === 'ai' && (
-                <img
+                <Image
                   src="/ai-yutenji-man.png"
                   alt="AI"
-                  style={{ width: '30px', height: '30px', borderRadius: '50%' }}
+                  width={30}
+                  height={30}
+                  style={{ borderRadius: '50%' }}
                 />
               )}
               {formatResponse(message.content)}
