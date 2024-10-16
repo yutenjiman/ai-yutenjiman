@@ -65,7 +65,9 @@ export function ChatInterface({ userPreferences }: ChatInterfaceProps) {
       throw new Error('APIレスポンスエラー');
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log('APIからのデータ:', data); // デバッグ用ログ
+    return data;
   }, []);
 
   useEffect(() => {
@@ -94,7 +96,7 @@ export function ChatInterface({ userPreferences }: ChatInterfaceProps) {
         console.log('Received response:', data);
         setMessages(prevMessages => [
           prevMessages[0],
-          { id: 2, content: data.recommendation, sender: 'ai' }
+          { id: 2, content: data.recommendation || '応答がありません。', sender: 'ai' }
         ]);
       } catch (error) {
         console.error('レストラン推薦の取得に失敗しました:', error);
@@ -118,7 +120,7 @@ export function ChatInterface({ userPreferences }: ChatInterfaceProps) {
       sender: 'user',
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages(prev => [...prev, userMessage, { id: messages.length + 2, content: 'ちょっと待ってな......', sender: 'ai' }]);
     const currentInput = input;
     setInput('');
 
@@ -126,10 +128,11 @@ export function ChatInterface({ userPreferences }: ChatInterfaceProps) {
       const data = await fetchRecommendation({ input: currentInput });
       const aiMessage: Message = {
         id: messages.length + 2,
-        content: data.recommendation,
+        content: data.response || '応答がありません。',
         sender: 'ai',
       };
-      setMessages(prev => [...prev, aiMessage]);
+      console.log("AIの返答:", aiMessage.content); // デバッグ用ログ
+      setMessages(prev => prev.map(msg => msg.id === aiMessage.id ? aiMessage : msg));
     } catch (error) {
       console.error('AI応答の生成に失敗しました:', error);
       setError('AI応答の生成に失敗しました。もう一度お試しください。');
@@ -138,7 +141,10 @@ export function ChatInterface({ userPreferences }: ChatInterfaceProps) {
     }
   };
 
-  const formatResponse = (response: string) => {
+  const formatResponse = (response: string | undefined) => {
+    if (!response) {
+      return <div>応答がありません。</div>;
+    }
     const html = marked(response.replace(/\n/g, '<br>'));
     return <div dangerouslySetInnerHTML={{ __html: html }} />;
   };
