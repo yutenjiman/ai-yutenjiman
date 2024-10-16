@@ -30,13 +30,11 @@ export async function POST(req: NextRequest) {
       input = body.input;
       console.log("入力されたメッセージ:", input);
 
-      // 飲食店を探しているかどうかをAIに判断させる
       const isLookingForRestaurant = await checkIfLookingForRestaurant(input);
 
       if (isLookingForRestaurant) {
         console.log("飲食店を探していると判断されました。");
 
-        // ユーザーから特に指定がない場合、初期インプットの場所とシチュエーションを引き継ぐ
         location = body.location || '指定なし';
         situation = body.situation || '指定なし';
 
@@ -62,14 +60,14 @@ ${JSON.stringify(restaurants, null, 2)}
 #条件
 - 口調は祐天寺マンの口調にしてください。
 - お調子者の40歳の関西人です。
-
-基本的に祐天寺マンの投稿内容を参考にして文章を考えてください。
+- 基本的に祐天寺マンの投稿内容を参考にして文章を考えてください。
+- 複数候補がある場合は、お薦めの候補を区切って、回答形式に則って複数提案してください。
 
 #回答形式
 **レストラン名**：「レストラン名」
 **お薦め理由**：お薦め理由
-**祐天寺マンの投稿**：x_url
-**地図リンク**：googlemap_url
+**祐天寺マンの投稿**：[リンクテキスト](x_url)
+**地図リンク**：[リンクテキスト](googlemap_url)
 `;
 
         const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -87,8 +85,11 @@ ${JSON.stringify(restaurants, null, 2)}
           throw new Error('AIの応答がnullです');
         }
 
-        // Markdown形式のリンクをHTMLリンクに変換
-        recommendation = recommendation.replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+        // MarkdownリンクをHTMLリンクに変換し、テキストを「こちら」に固定
+        recommendation = recommendation.replace(
+          /\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g,
+          '<a href="$2" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">こちら</a>'
+        );
 
         console.log("AI推薦結果:", recommendation);
 
@@ -96,7 +97,6 @@ ${JSON.stringify(restaurants, null, 2)}
       } else {
         console.log("飲食店を探していないと判断されました。");
 
-        // 飲食店に関する質問ではない場合、ユーザーのインプットのみを参考に祐天寺マンの口調で返答
         const prompt = `
 ユーザーのインプットに基づいて、祐天寺マンの口調で返答してください：
 
@@ -105,8 +105,7 @@ ${JSON.stringify(restaurants, null, 2)}
 #条件
 - 口調は祐天寺マンの口調にしてください。
 - お調子者の40歳の関西人です。
-
-基本的に祐天寺マンの投稿内容を参考にして文章を考えてください。
+- 基本的に祐天寺マンの投稿内容を参考にして文章を考えてください。
 `;
 
         const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -162,14 +161,14 @@ ${JSON.stringify(restaurants, null, 2)}
 #条件
 - 口調は祐天寺マンの口調にしてください。
 - お調子者の40歳の関西人です。
-
-基本的に祐天寺マンの投稿内容を参考にして文章を考えてください。
+- 基本的に祐天寺マンの投稿内容を参考にして文章を考えてください。
+- 複数候補がある場合は、お薦めの候補を区切って、回答形式に則って複数提案してください。
 
 #回答形式
 **レストラン名**：「レストラン名」
 **お薦め理由**：お薦め理由
-**祐天寺マンの投稿**：x_url
-**地図リンク**：googlemap_url
+**祐天寺マンの投稿**：[リンクテキスト](x_url)
+**地図リンク**：[リンクテキスト](googlemap_url)
 `;
 
     const aiResponse = await openai.chat.completions.create({
@@ -186,8 +185,11 @@ ${JSON.stringify(restaurants, null, 2)}
       throw new Error('AIの応答がnullです');
     }
 
-    // Markdown形式のリンクをHTMLリンクに変換
-    recommendation = recommendation.replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    // MarkdownリンクをHTMLリンクに変換し、テキストを「こちら」に固定
+    recommendation = recommendation.replace(
+      /\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g,
+      '<a href="$2" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">こちら</a>'
+    );
 
     console.log("AI推薦結果:", recommendation);
 
@@ -217,9 +219,7 @@ async function checkIfLookingForRestaurant(input: string): Promise<boolean> {
     throw new Error('AIの応答がnullです');
   }
 
-  // AIの応答をコンソールに出力
   console.log("AIの判断:", content);
 
-  // AIの応答を解析して、飲食店を探しているかどうかを判断
   return content.toLowerCase().includes('true');
 }

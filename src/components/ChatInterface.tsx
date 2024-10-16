@@ -31,16 +31,150 @@ export function ChatInterface({ userPreferences }: ChatInterfaceProps) {
   const translatePreference = (key: string, value: string | undefined): string => {
     const translations: { [key: string]: { [key: string]: string } } = {
       cuisine: {
-        'chinese': '中華',
-        'japanese': '和食',
+        'japanese': '日本料理',
+        'sushi': '鮨',
+        'seafood': '海鮮',
+        'eel': 'うなぎ・あなご',
+        'tempura': '天ぷら',
+        'fried': 'とんかつ・揚げ物',
+        'yakitori': '焼き鳥・串焼・鶏料理',
+        'sukiyaki': 'すき焼き',
+        'shabu-shabu': 'しゃぶしゃぶ',
+        'soba': 'そば',
+        'udon': 'うどん',
+        'noodles': '麺類',
+        'okonomiyaki': 'お好み焼き・たこ焼き',
+        'donburi': '丼',
+        'oden': 'おでん',
+        'other': 'その他',
+        'western': '洋食',
+        'steak': 'ステーキ・鉄板焼',
+        'french': 'フレンチ',
         'italian': 'イタリアン',
-        // 他のジャンルも追加
+        'spanish': 'スペイン料理',
+        'european': 'ヨーロッパ料理',
+        'american': 'アメリカ料理',
+        'chinese': '中華料理',
+        'sichuan': '四川料理',
+        'taiwanese': '台湾料理',
+        'dimsum': '飲茶・点心',
+        'gyoza': '餃子',
+        'nikuman': '肉まん',
+        'xiaolongbao': '小籠包',
+        'congee': '中華粥',
+        'asian': 'アジア・エスニック',
+        'korean': '韓国料理',
+        'southeast_asian': '東南アジア料理',
+        'south_asian': '南アジア料理',
+        'middle_eastern': '中東料理',
+        'latin_american': '中南米料理',
+        'african': 'アフリカ料理',
+        'curry': 'カレー',
+        'indian_curry': 'インドカレー',
+        'soup_curry': 'スープカレー',
+        'yakiniku': '焼肉',
+        'hormone': 'ホルモン',
+        'jingisukan': 'ジンギスカン',
+        'nabe': '鍋',
+        'motsunabe': 'もつ鍋',
+        'mizutaki': '水炊き',
+        'chanko': 'ちゃんこ鍋',
+        'hotpot': '火鍋',
+        'udonsuki': 'うどんすき',
+        'izakaya': '居酒屋',
+        'dining_bar': 'ダイニングバー',
+        'standing_bar': '立ち飲み',
+        'bar': 'バー',
+        'beer_garden': 'ビアガーデン・ビアホール',
+        'restaurant': 'レストラン・食堂',
+        'creative': '創作料理・イノベーティブ',
+        'organic': 'オーガニック・薬膳',
+        'bento': '弁当・おにぎり・惣菜',
+        'meat': '肉料理',
+        'salad': 'サラダ・野菜料理',
+        'cheese': 'チーズ料理',
+        'garlic': 'ニンニク料理',
+        'buffet': 'ビュッフェ',
+        'bbq': 'バーベキュー',
+        'yatai': '屋台船・クルージング',
+        'ramen': 'ラーメン',
+        'tsukemen': 'つけ麺',
+        'aburasoba': '油そば・まぜそば',
+        'taiwan_mazesoba': '台湾まぜそば',
+        'tantanmen': '担々麺',
+        'soup_less_tantanmen': '汁なし担々麺',
+        'knife_cut_noodles': '刀削麺',
+        'cafe': 'カフェ',
+        'kissaten': '喫茶店',
+        'kanmidokoro': '甘味処',
+        'fruit_parlor': 'フルーツパーラー',
+        'pancake': 'パンケーキ',
+        'coffee_stand': 'コーヒースタンド',
+        'tea_stand': 'ティースタンド',
+        'juice_stand': 'ジューススタンド',
+        'tapioca': 'タピオカ',
+        'sweets': 'スイーツ',
+        'western_sweets': '洋菓子',
+        'cake': 'ケーキ',
+        'cream_puff': 'シュークリーム',
+        'chocolate': 'チョコレート',
+        'donut': 'ドーナツ',
+        'macaron': 'マカロン',
+        'baumkuchen': 'バームクーヘン',
+        'pudding': 'プリン',
+        'crepe': 'クレープ・ガレット',
+        'wagashi': '和菓子',
+        'daifuku': '大福',
+        'taiyaki': 'たい焼き・大判焼き',
+        'dorayaki': 'どら焼き',
+        'yakiimo': '焼き芋・大学芋',
+        'senbei': 'せんべい',
+        'chinese_sweets': '中華菓子',
+        'gelato': 'ジェラート・アイスクリーム',
+        'soft_cream': 'ソフトクリーム',
+        'shaved_ice': 'かき氷',
+        'bread': 'パン',
+        'sandwich': 'サンドイッチ',
+        'bagel': 'ベーグル',
+        'pub': 'パブ',
+        'wine_bar': 'ワインバー',
+        'beer_bar': 'ビアバー',
+        'sports_bar': 'スポーツバー',
+        'sake_bar': '日本酒バー',
+        'shochu_bar': '焼酎バー',
+        'ryokan': '料理旅館',
+        'auberge': 'オーベルジュ',
       },
       situation: {
         'family': '家族',
         'date': 'デート',
         'business': 'ビジネス',
-        // 他のシチュエーションも追加
+        'friends': '友人',
+        'solo': '一人',
+        'party': 'パーティー',
+        'celebration': 'お祝い',
+        'casual': 'カジュアル',
+        'formal': 'フォーマル',
+        'romantic': 'ロマンチック',
+        'adventure': '冒険',
+        'relaxation': 'リラクゼーション',
+        'work': '仕事',
+        'study': '勉強',
+        'travel': '旅行',
+        'shopping': 'ショッピング',
+        'sports': 'スポーツ',
+        'entertainment': 'エンターテインメント',
+        'health': '健康',
+        'spiritual': 'スピリチュアル',
+        'cultural': '文化',
+        'educational': '教育',
+        'volunteer': 'ボランティア',
+        'networking': 'ネットワーキング',
+        'family_gathering': '家族の集まり',
+        'friend_meeting': '友人との会合',
+        'business_meeting': 'ビジネス会議',
+        'date_night': 'デートナイト',
+        'solo_time': '一人の時間',
       }
     };
 
@@ -51,24 +185,31 @@ export function ChatInterface({ userPreferences }: ChatInterfaceProps) {
   };
 
   const fetchRecommendation = useCallback(async (body: object) => {
-    const response = await fetch('/api/recommend', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
+    try {
+      const response = await fetch('/api/recommend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
 
-    if (response.status === 429) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return fetchRecommendation(body);
+      if (response.status === 429) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return fetchRecommendation(body);
+      }
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('APIレスポンスエラー:', errorText);
+        throw new Error('APIレスポンスエラー');
+      }
+
+      const data = await response.json();
+      console.log('APIからのデータ:', data); // デバッグ用ログ
+      return data;
+    } catch (error) {
+      console.error('API呼び出し中にエラーが発生しました:', error);
+      throw error;
     }
-
-    if (!response.ok) {
-      throw new Error('APIレスポンスエラー');
-    }
-
-    const data = await response.json();
-    console.log('APIからのデータ:', data); // デバッグ用ログ
-    return data;
   }, []);
 
   useEffect(() => {
@@ -127,9 +268,14 @@ export function ChatInterface({ userPreferences }: ChatInterfaceProps) {
 
     try {
       const data = await fetchRecommendation({ input: currentInput });
+      console.log("受け取ったデータ:", data); // デバッグ用ログ
+
+      // 飲食店に関連しない場合のデフォルト応答を設定
+      const defaultResponse = 'その質問に対する情報はありませんが、他に何かお手伝いできることがあれば教えてください！';
+
       const aiMessage: Message = {
         id: messages.length + 2,
-        content: data.response || '応答がありません。',
+        content: data.recommendation || data.response || defaultResponse,
         sender: 'ai',
       };
       console.log("AIの返答:", aiMessage.content); // デバッグ用ログ
