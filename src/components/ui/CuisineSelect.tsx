@@ -19,16 +19,19 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
   };
 
   const handleInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    if (!e.relatedTarget || !e.relatedTarget.closest('.select-content')) {
-      setIsOpen(false); // フォーカスが外れたときにドロップダウンを閉じる
-    }
+    // タイムアウトを利用して次のクリックが発生するかどうかを少し待つ
+    setTimeout(() => {
+      if (!document.activeElement?.closest('.select-content')) {
+        setIsOpen(false); // フォーカスが完全に外れたらドロップダウンを閉じる
+      }
+    }, 100); // 小さな遅延を加える
   };
 
   return (
     <div>
       <Label htmlFor="cuisine">料理ジャンル（任意）</Label>
       <Select onValueChange={(value) => setValue('cuisine', value)}>
-        <SelectTrigger onMouseDown={(e) => e.preventDefault()} onClick={handleSelectTriggerClick}>
+        <SelectTrigger onClick={handleSelectTriggerClick}>
           <SelectValue placeholder="料理ジャンルを選択" />
         </SelectTrigger>
         {isOpen && (
