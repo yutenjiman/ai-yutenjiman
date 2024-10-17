@@ -1,7 +1,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 
 export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, value: string) => void, cuisines: { label: string, value: string }[] }) {
   const [cuisineSearch, setCuisineSearch] = useState('');
@@ -11,6 +11,19 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
   const [isSearching, setIsSearching] = useState(false);
 
   const filteredCuisines = cuisines.filter(cuisine => cuisine.label.toLowerCase().includes(cuisineSearch.toLowerCase()));
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (inputRef.current && !inputRef.current.contains(event.target as Node)) {
+        setIsSearching(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleSelectTriggerClick = () => {
     setIsOpen(!isOpen);
@@ -33,6 +46,7 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
   const handleSearchClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsSearching(true);
+    setIsOpen(true);
     setTimeout(() => {
       inputRef.current?.focus();
     }, 0);
