@@ -14,6 +14,16 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
     setIsOpen(!isOpen);
   };
 
+  const handleInputFocus = () => {
+    setIsOpen(true); // フォーカス時にドロップダウンを開く
+  };
+
+  const handleInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    if (!e.relatedTarget || !e.relatedTarget.closest('.select-content')) {
+      setIsOpen(false); // フォーカスが外れたときにドロップダウンを閉じる
+    }
+  };
+
   return (
     <div>
       <Label htmlFor="cuisine">料理ジャンル（任意）</Label>
@@ -22,17 +32,15 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
           <SelectValue placeholder="料理ジャンルを選択" />
         </SelectTrigger>
         {isOpen && (
-          <SelectContent>
+          <SelectContent className="select-content">
             <Input
               ref={inputRef}
               placeholder="料理ジャンルを検索"
               value={cuisineSearch}
               onChange={(e) => setCuisineSearch(e.target.value)}
               className="mb-2"
-              onFocus={(e) => {
-                e.stopPropagation();
-                setIsOpen(true); // フォーカス時にドロップダウンを開く
-              }}
+              onFocus={handleInputFocus}
+              onBlur={handleInputBlur}
             />
             {filteredCuisines.map(cuisine => (
               <SelectItem key={cuisine.value} value={cuisine.value}>
