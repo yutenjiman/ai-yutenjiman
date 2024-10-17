@@ -21,10 +21,8 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
   const filteredCuisines = cuisines.filter(cuisine => cuisine.label.toLowerCase().includes(cuisineSearch.toLowerCase()));
 
   const handleSelectTriggerClick = () => {
-    if (!isMobile) {
-      setIsOpen(!isOpen);
-    } else {
-      setIsOpen(true);
+    setIsOpen(!isOpen);
+    if (isMobile && !isOpen) {
       setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
@@ -32,7 +30,9 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
   };
 
   const handleInputFocus = () => {
-    setIsOpen(true);
+    if (!isMobile) {
+      setIsOpen(true);
+    }
   };
 
   const handleInputBlur = (e: React.FocusEvent) => {
@@ -49,6 +49,9 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
     setValue('cuisine', value);
     setIsOpen(false);
     setCuisineSearch('');
+    if (isMobile) {
+      inputRef.current?.blur();
+    }
   };
 
   return (
