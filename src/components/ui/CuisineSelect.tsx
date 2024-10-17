@@ -8,6 +8,7 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
   const inputRef = useRef<HTMLInputElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [selectedCuisine, setSelectedCuisine] = useState('');
 
   useEffect(() => {
     const checkMobile = () => {
@@ -22,42 +23,24 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
 
   const handleSelectTriggerClick = () => {
     setIsOpen(!isOpen);
-    if (isMobile && !isOpen) {
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 100);
-    }
   };
 
-  const handleInputFocus = () => {
-    if (!isMobile) {
-      setIsOpen(true);
-    }
-  };
-
-  const handleInputBlur = (e: React.FocusEvent) => {
-    if (!isMobile) {
-      if (!e.relatedTarget || !e.currentTarget.contains(e.relatedTarget as Node)) {
-        setTimeout(() => {
-          setIsOpen(false);
-        }, 200);
-      }
-    }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCuisineSearch(e.target.value);
+    setIsOpen(true);
   };
 
   const handleSelectChange = (value: string) => {
     setValue('cuisine', value);
-    setIsOpen(false);
+    setSelectedCuisine(value);
     setCuisineSearch('');
-    if (isMobile) {
-      inputRef.current?.blur();
-    }
+    setIsOpen(false);
   };
 
   return (
     <div>
       <Label htmlFor="cuisine">料理ジャンル（任意）</Label>
-      <Select onValueChange={handleSelectChange} open={isOpen} onOpenChange={setIsOpen}>
+      <Select onValueChange={handleSelectChange} open={isOpen} onOpenChange={setIsOpen} value={selectedCuisine}>
         <SelectTrigger onClick={handleSelectTriggerClick}>
           <SelectValue placeholder="料理ジャンルを選択" />
         </SelectTrigger>
@@ -66,10 +49,9 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
             ref={inputRef}
             placeholder="料理ジャンルを検索"
             value={cuisineSearch}
-            onChange={(e) => setCuisineSearch(e.target.value)}
+            onChange={handleInputChange}
             className="mb-2"
-            onFocus={handleInputFocus}
-            onBlur={handleInputBlur}
+            onFocus={() => setIsOpen(true)}
           />
           {filteredCuisines.map(cuisine => (
             <SelectItem key={cuisine.value} value={cuisine.value}>
