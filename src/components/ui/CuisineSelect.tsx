@@ -9,11 +9,18 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
 
   const filteredCuisines = cuisines.filter(cuisine => cuisine.label.includes(cuisineSearch));
 
+  const handleSelectTriggerClick = () => {
+    // モバイルデバイスの場合、フォーカスを遅延させるか、条件に応じてフォーカスを与えない
+    if (!/Mobi|Android/i.test(navigator.userAgent)) {
+      setTimeout(() => inputRef.current?.focus(), 0);
+    }
+  };
+
   return (
     <div>
       <Label htmlFor="cuisine">料理ジャンル（任意）</Label>
       <Select onValueChange={(value) => setValue('cuisine', value)}>
-        <SelectTrigger onMouseDown={(e) => e.preventDefault()} onClick={() => setTimeout(() => inputRef.current?.focus(), 0)}>
+        <SelectTrigger onMouseDown={(e) => e.preventDefault()} onClick={handleSelectTriggerClick}>
           <SelectValue placeholder="料理ジャンルを選択" />
         </SelectTrigger>
         <SelectContent>
