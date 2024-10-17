@@ -1,17 +1,34 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 
 export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, value: string) => void, cuisines: { label: string, value: string }[] }) {
   const [cuisineSearch, setCuisineSearch] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const filteredCuisines = cuisines.filter(cuisine => cuisine.label.toLowerCase().includes(cuisineSearch.toLowerCase()));
 
   const handleSelectTriggerClick = () => {
-    setIsOpen(!isOpen);
+    if (!isMobile) {
+      setIsOpen(!isOpen);
+    } else {
+      setIsOpen(true);
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
   };
 
   const handleInputFocus = () => {
@@ -19,18 +36,25 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
   };
 
   const handleInputBlur = (e: React.FocusEvent) => {
-    // リレーテッドターゲットがSelectContent内にある場合は閉じない
-    if (!e.relatedTarget || !e.currentTarget.contains(e.relatedTarget as Node)) {
-      setTimeout(() => {
-        setIsOpen(false);
-      }, 200);
+    if (!isMobile) {
+      if (!e.relatedTarget || !e.currentTarget.contains(e.relatedTarget as Node)) {
+        setTimeout(() => {
+          setIsOpen(false);
+        }, 200);
+      }
     }
+  };
+
+  const handleSelectChange = (value: string) => {
+    setValue('cuisine', value);
+    setIsOpen(false);
+    setCuisineSearch('');
   };
 
   return (
     <div>
       <Label htmlFor="cuisine">料理ジャンル（任意）</Label>
-      <Select onValueChange={(value) => setValue('cuisine', value)} open={isOpen} onOpenChange={setIsOpen}>
+      <Select onValueChange={handleSelectChange} open={isOpen} onOpenChange={setIsOpen}>
         <SelectTrigger onClick={handleSelectTriggerClick}>
           <SelectValue placeholder="料理ジャンルを選択" />
         </SelectTrigger>
