@@ -30,8 +30,8 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
             onChange={(e) => setCuisineSearch(e.target.value)}
             className="mb-2"
             onBlur={(e) => {
-              // onBlur イベントを無視する
-              e.preventDefault();
+              // onBlur イベントの処理を削除
+              // e.preventDefault(); // この行を削除
             }}
             onFocus={(e) => {
               e.stopPropagation();
