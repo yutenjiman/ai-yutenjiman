@@ -9,16 +9,11 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
 
   const filteredCuisines = cuisines.filter(cuisine => cuisine.label.includes(cuisineSearch));
 
-  // フォーカスを当てる処理を削除
-  const handleSelectTriggerClick = () => {
-    // フォーカスを当てる処理を削除
-  };
-
   return (
     <div>
       <Label htmlFor="cuisine">料理ジャンル（任意）</Label>
-      <Select onValueChange={(value) => setValue('cuisine', value)}>
-        <SelectTrigger onMouseDown={(e) => e.preventDefault()} onClick={handleSelectTriggerClick}>
+      <Select onValueChange={(value) => setValue('cuisine', value)} openOnFocus>
+        <SelectTrigger onMouseDown={(e) => e.preventDefault()}>
           <SelectValue placeholder="料理ジャンルを選択" />
         </SelectTrigger>
         <SelectContent>
@@ -30,6 +25,7 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
             className="mb-2"
             onFocus={(e) => {
               e.stopPropagation();
+              // ドロップダウンが閉じないようにする
             }}
           />
           {filteredCuisines.map(cuisine => (
