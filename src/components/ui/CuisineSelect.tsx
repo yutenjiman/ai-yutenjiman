@@ -1,7 +1,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 
 export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, value: string) => void, cuisines: { label: string, value: string }[] }) {
   const [cuisineSearch, setCuisineSearch] = useState('');
@@ -9,24 +9,10 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
 
   const filteredCuisines = cuisines.filter(cuisine => cuisine.label.includes(cuisineSearch));
 
-  useEffect(() => {
-    // touchstart イベントを一時的に無効化
-    // const handleTouchStart = (e: TouchEvent) => {
-    //   if (inputRef.current && !inputRef.current.contains(e.target as Node)) {
-    //     e.preventDefault();
-    //   }
-    // };
-
-    // document.addEventListener('touchstart', handleTouchStart, { passive: false });
-
-    // return () => {
-    //   document.removeEventListener('touchstart', handleTouchStart);
-    // };
-  }, []);
-
   const handleSelectTriggerClick = () => {
-    // focusのタイミングを再調整
-    setTimeout(() => inputRef.current?.focus(), 100); // 遅延を再調整
+    if (!/Mobi|Android/i.test(navigator.userAgent)) {
+      setTimeout(() => inputRef.current?.focus(), 0);
+    }
   };
 
   return (
@@ -43,6 +29,10 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
             value={cuisineSearch}
             onChange={(e) => setCuisineSearch(e.target.value)}
             className="mb-2"
+            onBlur={(e) => {
+              // onBlur イベントを無視する
+              e.preventDefault();
+            }}
             onFocus={(e) => {
               e.stopPropagation();
             }}
