@@ -7,6 +7,7 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
   const [isOpen, setIsOpen] = useState(false);
   const [selectedCuisine, setSelectedCuisine] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const filteredCuisines = cuisines.filter(cuisine => cuisine.label.toLowerCase().includes(cuisineSearch.toLowerCase()));
 
@@ -35,16 +36,31 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
     setIsOpen(false);
   };
 
+  const handleSearchClick = () => {
+    setIsOpen(true);
+    inputRef.current?.focus();
+  };
+
   return (
     <div ref={dropdownRef}>
       <Label htmlFor="cuisine">料理ジャンル（任意）</Label>
-      <Input
-        id="cuisine"
-        placeholder={selectedCuisine || "料理ジャンルを選択"}
-        value={cuisineSearch}
-        onChange={handleInputChange}
-        onFocus={() => setIsOpen(true)}
-      />
+      <div className="relative">
+        <Input
+          ref={inputRef}
+          id="cuisine"
+          placeholder={selectedCuisine || "料理ジャンルを選択"}
+          value={cuisineSearch}
+          onChange={handleInputChange}
+          onFocus={() => setIsOpen(true)}
+        />
+        <button
+          type="button"
+          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          onClick={handleSearchClick}
+        >
+          料理ジャンルを検索
+        </button>
+      </div>
       {isOpen && (
         <div className="mt-1 max-h-60 overflow-auto bg-white border border-gray-300 rounded-md shadow-lg">
           {filteredCuisines.map(cuisine => (
