@@ -1,3 +1,4 @@
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useState, useRef, useEffect } from 'react';
@@ -5,75 +6,57 @@ import { useState, useRef, useEffect } from 'react';
 export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, value: string) => void, cuisines: { label: string, value: string }[] }) {
   const [cuisineSearch, setCuisineSearch] = useState('');
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedCuisine, setSelectedCuisine] = useState('');
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const filteredCuisines = cuisines.filter(cuisine => cuisine.label.toLowerCase().includes(cuisineSearch.toLowerCase()));
 
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
+    if (isOpen && inputRef.current) {
+      inputRef.current.focus();
     }
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+  }, [isOpen]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCuisineSearch(e.target.value);
-    setIsOpen(true);
   };
 
-  const handleCuisineSelect = (value: string, label: string) => {
+  const handleSelectChange = (value: string) => {
     setValue('cuisine', value);
-    setSelectedCuisine(label);
     setCuisineSearch('');
     setIsOpen(false);
   };
 
-  const handleSearchClick = () => {
-    setIsOpen(true);
-    inputRef.current?.focus();
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      setCuisineSearch('');
+    }
   };
 
   return (
-    <div ref={dropdownRef}>
+    <div>
       <Label htmlFor="cuisine">料理ジャンル（任意）</Label>
-      <div className="relative">
-        <Input
-          ref={inputRef}
-          id="cuisine"
-          placeholder={selectedCuisine || "料理ジャンルを選択"}
-          value={cuisineSearch}
-          onChange={handleInputChange}
-          onFocus={() => setIsOpen(true)}
-        />
-        <button
-          type="button"
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-          onClick={handleSearchClick}
-        >
-          料理ジャンルを検索
-        </button>
-      </div>
-      {isOpen && (
-        <div className="mt-1 max-h-60 overflow-auto bg-white border border-gray-300 rounded-md shadow-lg">
+      <Select onValueChange={handleSelectChange} open={isOpen} onOpenChange={handleOpenChange}>
+        <SelectTrigger>
+          <SelectValue placeholder="料理ジャンルを選択" />
+        </SelectTrigger>
+        <SelectContent>
+          <div className="p-2">
+            <Input
+              ref={inputRef}
+              placeholder="料理ジャンルを検索"
+              value={cuisineSearch}
+              onChange={handleInputChange}
+              className="mb-2"
+            />
+          </div>
           {filteredCuisines.map(cuisine => (
-            <div
-              key={cuisine.value}
-              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-              onClick={() => handleCuisineSelect(cuisine.value, cuisine.label)}
-            >
+            <SelectItem key={cuisine.value} value={cuisine.value}>
               {cuisine.label}
-            </div>
+            </SelectItem>
           ))}
-        </div>
-      )}
+        </SelectContent>
+      </Select>
     </div>
   );
 }
