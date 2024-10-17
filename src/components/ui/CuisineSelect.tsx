@@ -10,22 +10,23 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
   const filteredCuisines = cuisines.filter(cuisine => cuisine.label.includes(cuisineSearch));
 
   useEffect(() => {
-    const handleTouchStart = (e: TouchEvent) => {
-      if (inputRef.current && !inputRef.current.contains(e.target as Node)) {
-        e.preventDefault();
-      }
-    };
+    // touchstart イベントを一時的に無効化
+    // const handleTouchStart = (e: TouchEvent) => {
+    //   if (inputRef.current && !inputRef.current.contains(e.target as Node)) {
+    //     e.preventDefault();
+    //   }
+    // };
 
-    document.addEventListener('touchstart', handleTouchStart, { passive: false });
+    // document.addEventListener('touchstart', handleTouchStart, { passive: false });
 
-    return () => {
-      document.removeEventListener('touchstart', handleTouchStart);
-    };
+    // return () => {
+    //   document.removeEventListener('touchstart', handleTouchStart);
+    // };
   }, []);
 
   const handleSelectTriggerClick = () => {
-    // モバイルでも動作するように、focusのタイミングを調整
-    setTimeout(() => inputRef.current?.focus(), 300); // 遅延を調整
+    // focusのタイミングを再調整
+    setTimeout(() => inputRef.current?.focus(), 100); // 遅延を再調整
   };
 
   return (
