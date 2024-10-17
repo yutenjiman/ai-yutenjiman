@@ -24,9 +24,8 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
   }, []);
 
   const handleSelectTriggerClick = () => {
-    if (!/Mobi|Android/i.test(navigator.userAgent)) {
-      setTimeout(() => inputRef.current?.focus(), 100); // 遅延を調整
-    }
+    // モバイルでも動作するように、focusのタイミングを調整
+    setTimeout(() => inputRef.current?.focus(), 300); // 遅延を調整
   };
 
   return (
