@@ -10,7 +10,6 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
   const filteredCuisines = cuisines.filter(cuisine => cuisine.label.includes(cuisineSearch));
 
   const handleSelectTriggerClick = () => {
-    // モバイルデバイスの場合、フォーカスを遅延させるか、条件に応じてフォーカスを与えない
     if (!/Mobi|Android/i.test(navigator.userAgent)) {
       setTimeout(() => inputRef.current?.focus(), 0);
     }
@@ -31,7 +30,10 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
             onChange={(e) => setCuisineSearch(e.target.value)}
             className="mb-2"
             onBlur={(e) => {
-              e.preventDefault();
+              // フォーカスが他の要素に移動した場合のみ処理
+              if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                e.preventDefault();
+              }
             }}
             onFocus={(e) => {
               e.stopPropagation();
