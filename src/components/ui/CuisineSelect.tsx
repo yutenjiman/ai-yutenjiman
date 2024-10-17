@@ -25,7 +25,7 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
 
   const handleSelectTriggerClick = () => {
     if (!/Mobi|Android/i.test(navigator.userAgent)) {
-      setTimeout(() => inputRef.current?.focus(), 0);
+      setTimeout(() => inputRef.current?.focus(), 100); // 遅延を調整
     }
   };
 
@@ -43,10 +43,6 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
             value={cuisineSearch}
             onChange={(e) => setCuisineSearch(e.target.value)}
             className="mb-2"
-            onBlur={(e) => {
-              // onBlur イベントを無視する
-              e.preventDefault();
-            }}
             onFocus={(e) => {
               e.stopPropagation();
             }}
