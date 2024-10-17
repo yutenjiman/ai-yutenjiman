@@ -9,9 +9,9 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
 
   const filteredCuisines = cuisines.filter(cuisine => cuisine.label.includes(cuisineSearch));
 
+  // フォーカスを当てる処理を削除
   const handleSelectTriggerClick = () => {
-    // モバイルでも動作するように、focusのタイミングを調整
-    setTimeout(() => inputRef.current?.focus(), 300); // 遅延を調整
+    // フォーカスを当てる処理を削除
   };
 
   return (
