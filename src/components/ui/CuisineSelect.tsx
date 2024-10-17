@@ -8,11 +8,13 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
   const inputRef = useRef<HTMLInputElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedCuisine, setSelectedCuisine] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
 
   const filteredCuisines = cuisines.filter(cuisine => cuisine.label.toLowerCase().includes(cuisineSearch.toLowerCase()));
 
   const handleSelectTriggerClick = () => {
     setIsOpen(!isOpen);
+    setIsSearching(false);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,6 +27,15 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
     setSelectedCuisine(value);
     setCuisineSearch('');
     setIsOpen(false);
+    setIsSearching(false);
+  };
+
+  const handleSearchClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsSearching(true);
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 0);
   };
 
   return (
@@ -35,14 +46,14 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
           <SelectValue placeholder="料理ジャンルを選択" />
         </SelectTrigger>
         <SelectContent className="select-content">
-          <div onTouchStart={(e) => e.preventDefault()}>
+          <div onClick={handleSearchClick}>
             <Input
               ref={inputRef}
               placeholder="料理ジャンルを検索"
               value={cuisineSearch}
               onChange={handleInputChange}
               className="mb-2"
-              onFocus={(e) => e.target.blur()}
+              readOnly={!isSearching}
             />
           </div>
           {filteredCuisines.map(cuisine => (
