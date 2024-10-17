@@ -18,7 +18,7 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
     setIsOpen(true); // フォーカス時にドロップダウンを開く
   };
 
-  const handleInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+  const handleInputBlur = () => {
     // タイムアウトを利用して次のクリックが発生するかどうかを少し待つ
     setTimeout(() => {
       if (!document.activeElement?.closest('.select-content')) {
