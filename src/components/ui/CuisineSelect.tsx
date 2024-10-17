@@ -23,11 +23,9 @@ export function CuisineSelect({ setValue, cuisines }: { setValue: (key: string, 
             value={cuisineSearch}
             onChange={(e) => setCuisineSearch(e.target.value)}
             className="mb-2"
-            // onBlur イベントを無視する
             onBlur={(e) => {
               e.preventDefault();
             }}
-            // onFocus イベントを追加して、フォーカスを適切に管理
             onFocus={(e) => {
               e.stopPropagation();
             }}
