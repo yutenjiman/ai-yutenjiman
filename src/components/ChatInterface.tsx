@@ -19,9 +19,10 @@ interface ChatInterfaceProps {
     cuisine?: string;
     situation?: string;
   };
+  sessionId: string; // セッションIDをプロパティとして追加
 }
 
-export function ChatInterface({ userPreferences }: ChatInterfaceProps) {
+export function ChatInterface({ userPreferences, sessionId }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [error, setError] = useState('');
@@ -81,7 +82,7 @@ export function ChatInterface({ userPreferences }: ChatInterfaceProps) {
       console.log('Sending initial request:', userPreferences);
 
       try {
-        const data = await fetchRecommendation(userPreferences);
+        const data = await fetchRecommendation({ ...userPreferences, sessionId });
         console.log('Received response:', data);
         setMessages(prevMessages => [
           prevMessages[0],
@@ -96,7 +97,7 @@ export function ChatInterface({ userPreferences }: ChatInterfaceProps) {
     };
 
     initializeChat();
-  }, [userPreferences, fetchRecommendation]);
+  }, [userPreferences, fetchRecommendation, sessionId]);
 
   const handleSend = async () => {
     if (input.trim() === '' || loading) return;
@@ -114,7 +115,7 @@ export function ChatInterface({ userPreferences }: ChatInterfaceProps) {
     setInput('');
 
     try {
-      const data = await fetchRecommendation({ input: currentInput });
+      const data = await fetchRecommendation({ input: currentInput, sessionId }); // セッションIDを含める
       console.log("受け取ったデータ:", data);
 
       const defaultResponse = 'その質問はちょっとわからんけど、他に何か答えるで！';

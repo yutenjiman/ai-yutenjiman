@@ -16,6 +16,7 @@ type RequestBody = {
   location?: string;
   cuisine?: string;
   situation?: string;
+  sessionId?: string; // セッションIDを追加
 };
 
 export async function POST(req: NextRequest) {
@@ -44,10 +45,25 @@ export async function POST(req: NextRequest) {
 async function processRequest(body: RequestBody) {
   let input: string;
   let budget: string, location: string, cuisine: string, situation: string;
+  let userMessages: string = '';
+  const sessionId = body.sessionId || uuidv4(); // セッションIDを生成または使用
 
   if ('input' in body) {
     input = body.input || '';
     console.log("入力されたメッセージ:", input);
+
+    // メッセージをログに挿入
+    const { error: insertError } = await supabase
+      .from('user_logs')
+      .insert([{ 
+        user_messages: input,
+        session_id: sessionId 
+      }]);
+
+    if (insertError) {
+      console.error('ログ保存エラー:', insertError);
+      return { error: 'ログ保存エラー' };
+    }
 
     const isLookingForRestaurant = await checkIfLookingForRestaurant(input);
 
@@ -56,6 +72,9 @@ async function processRequest(body: RequestBody) {
 
       location = body.location || '指定なし';
       situation = body.situation || '指定なし';
+
+      // 自由入力をuserMessagesに保存
+      userMessages = input;
 
       const { data: restaurants, error } = await supabase
         .from('restaurants')
@@ -80,10 +99,9 @@ ${JSON.stringify(restaurants, null, 2)}
 - 口調は祐天寺マンの口調にしてください。
 - お調子者の40歳の関西人です。
 - 基本的に祐天寺マンの投稿内容を参考にして文章を考えてください。
-- 複数候補がある場合は、お薦めの候補を区切って、回答形式に則って複数提案してください。
+- 複数候補がある場合は、お薦めの候補を区切って、お薦め①,お薦め②という風に最初に追加した上で回答形式に則って複数提案してください。
 
 #回答形式
-複数候補がある場合はおススメ①,おススメ②とつけるようにしてください。
 **レストラン名**：「レストラン名」
 **お薦め理由**：お薦め理由
 **祐天寺マンの投稿**：[リンクテキスト](x_url)
@@ -115,6 +133,9 @@ ${JSON.stringify(restaurants, null, 2)}
       return { recommendation };
     } else {
       console.log("飲食店を探していないと判断されました。");
+
+      // 自由入力をuserMessagesに保存
+      userMessages = input;
 
       const prompt = `
 ユーザーのインプットに基づいて、祐天寺マンの口調で返答してください：
@@ -154,12 +175,20 @@ ${JSON.stringify(restaurants, null, 2)}
     input = `予算: ${budget}, 場所: ${location}, ジャンル: ${cuisine}, シチュエーション: ${situation}`;
   }
 
-  const { error: logError } = await supabase
+  // 新しいログを常に挿入
+  const { error: insertError } = await supabase
     .from('user_logs')
-    .insert([{ budget, location, genre: cuisine, situation }]);
+    .insert([{ 
+      budget, 
+      location, 
+      genre: cuisine, 
+      situation, 
+      user_messages: userMessages,
+      session_id: sessionId 
+    }]);
 
-  if (logError) {
-    console.error('ログ保存エラー:', logError);
+  if (insertError) {
+    console.error('ログ保存エラー:', insertError);
     return { error: 'ログ保存エラー' };
   }
 
@@ -184,10 +213,9 @@ ${JSON.stringify(restaurants, null, 2)}
 - 口調は祐天寺マンの口調にしてください。
 - お調子者の40歳の関西人です。
 - 基本的に祐天寺マンの投稿内容を参考にして文章を考えてください。
-- 複数候補がある場合は、お薦めの候補を区切って、回答形式に則って複数提案してください。
+- 複数候補がある場合は、お薦めの候補を区切って、お薦め①,お薦め②という風に最初に追加した上で回答形式に則って複数提案してください。
 
 #回答形式
-複数候補がある場合はおススメ①,おススメ②とつけるようにしてください。
   **レストラン名**：「レストラン名」
   **お薦め理由**：お薦め理由
   **祐天寺マンの投稿**：[リンクテキスト](x_url)

@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import { InitialModal, UserPreferences } from '@/components/InitialModal';
 import { ChatInterface } from '@/components/ChatInterface';
+import { v4 as uuidv4 } from 'uuid'; // UUIDを生成するために追加
 
 export default function Home() {
   const [showChat, setShowChat] = useState(false);
@@ -12,10 +13,12 @@ export default function Home() {
     cuisine: '',
     situation: ''
   });
+  const [sessionId, setSessionId] = useState<string>(''); // セッションIDの状態を追加
 
   const handleStartChat = useCallback((preferences: UserPreferences) => {
     console.log("Home コンポーネントで受け取ったデータ:", preferences);
     setUserPreferences(preferences);
+    setSessionId(uuidv4()); // セッションIDを生成
     setShowChat(true);
   }, []);
 
@@ -28,6 +31,7 @@ export default function Home() {
         <ChatInterface 
           key={JSON.stringify(userPreferences)}
           userPreferences={userPreferences} 
+          sessionId={sessionId} // セッションIDを渡す
         />
       )}
     </div>
