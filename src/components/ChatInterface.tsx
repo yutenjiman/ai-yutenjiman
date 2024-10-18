@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { marked } from 'marked';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import Image from 'next/image';
+import { MessageList } from './ui/MessageList';
 
-type Message = {
+// Message型をエクスポート
+export type Message = {
   id: number;
   content: string;
   sender: 'user' | 'ai';
@@ -31,7 +31,7 @@ export function ChatInterface({ userPreferences }: ChatInterfaceProps) {
   const translatePreference = (key: string, value: string | undefined): string => {
     const translations: { [key: string]: { [key: string]: string } } = {
       cuisine: {
-        'japanese': '日本料理',
+        'japanese': '和食',
         'sushi': '鮨',
         'seafood': '海鮮',
         'eel': 'うなぎ・あなご',
@@ -199,7 +199,7 @@ export function ChatInterface({ userPreferences }: ChatInterfaceProps) {
       setLoading(true);
       setError('');
 
-      const initialMessage = `以下の条件でおすすめのお店を教えてください：
+      const initialMessage = `以下の条件でおすすめのお店を教えて
 予算: ${userPreferences.budget || '指定なし'}
 場所: ${userPreferences.location || '指定なし'}
 ジャンル: ${translatePreference('cuisine', userPreferences.cuisine)}
@@ -249,7 +249,7 @@ export function ChatInterface({ userPreferences }: ChatInterfaceProps) {
       const data = await fetchRecommendation({ input: currentInput });
       console.log("受け取ったデータ:", data);
 
-      const defaultResponse = 'その質問に対する情報はありませんが、他に何かお手伝いできることがあれば教えてください！';
+      const defaultResponse = 'その質問はちょっとわからんけど、他に何か答えるで！';
 
       const aiMessage: Message = {
         id: messages.length + 2,
@@ -266,45 +266,9 @@ export function ChatInterface({ userPreferences }: ChatInterfaceProps) {
     }
   };
 
-  const formatResponse = (response: string | undefined) => {
-    if (!response) {
-      return <div>応答がありません。</div>;
-    }
-    const html = marked(response.replace(/\n/g, '<br>'));
-    return <div dangerouslySetInnerHTML={{ __html: html }} />;
-  };
-
   return (
     <div className="flex flex-col h-[calc(100vh-200px)]">
-      <div className="flex-1 overflow-y-auto mb-4 p-4 bg-gray-100 rounded">
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`mb-4 ${
-              message.sender === 'user' ? 'text-right' : 'text-left'
-            }`}
-          >
-            <div
-              className={`inline-block p-2 rounded-lg ${
-                message.sender === 'user'
-                  ? 'bg-blue-500 text-white text-left'
-                  : 'bg-gray-300 text-black'
-              }`}
-            >
-              {message.sender === 'ai' && (
-                <Image
-                  src="/ai-yutenji-man.png"
-                  alt="AI"
-                  width={30}
-                  height={30}
-                  style={{ borderRadius: '50%' }}
-                />
-              )}
-              {formatResponse(message.content)}
-            </div>
-          </div>
-        ))}
-      </div>
+      <MessageList messages={messages} />
       <div className="flex">
         <Input
           type="text"

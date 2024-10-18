@@ -33,7 +33,7 @@ export function InitialModal({ onStartChat }: InitialModalProps) {
   };
 
   const cuisines = [
-    { value: 'japanese', label: '日本料理' },
+    { value: 'japanese', label: '和食' },
     { value: 'sushi', label: '鮨' },
     { value: 'seafood', label: '海鮮' },
     { value: 'eel', label: 'うなぎ・あなご' },
