@@ -1,12 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 
+// Supabaseクライアントの作成
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
 export async function GET(req: NextRequest) {
+  // Supabaseからレストランデータを取得
   const { data, error } = await supabase.from('restaurants').select('*');
 
   if (error) {

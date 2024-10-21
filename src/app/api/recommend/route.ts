@@ -18,7 +18,7 @@ type RequestBody = {
   cuisine?: string;
   situation?: string;
   sessionId?: string; // セッションIDを追加
-  restaurants?: any[]; // ローカルストレージからのレストランデータを追加
+  restaurants?: Array<{ name: string; location: string; cuisine: string }>; // 具体的な型に置き換え
 };
 
 export async function POST(req: NextRequest) {
