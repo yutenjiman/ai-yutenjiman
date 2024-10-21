@@ -3,6 +3,7 @@ import { OpenAI } from 'openai';
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 
+// Supabaseクライアントの作成
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -17,6 +18,7 @@ type RequestBody = {
   cuisine?: string;
   situation?: string;
   sessionId?: string; // セッションIDを追加
+  restaurants?: any[]; // ローカルストレージからのレストランデータを追加
 };
 
 export async function POST(req: NextRequest) {
@@ -52,18 +54,10 @@ async function processRequest(body: RequestBody) {
     input = body.input || '';
     console.log("入力されたメッセージ:", input);
 
-    // メッセージをログに挿入
-    const { error: insertError } = await supabase
-      .from('user_logs')
-      .insert([{ 
-        user_messages: input,
-        session_id: sessionId 
-      }]);
-
-    if (insertError) {
-      console.error('ログ保存エラー:', insertError);
-      return { error: 'ログ保存エラー' };
-    }
+    // ローカルストレージから送信されたレストランデータを使用
+    console.time('ローカルストレージからのデータ取得時間');
+    const restaurants = body.restaurants || [];
+    console.timeEnd('ローカルストレージからのデータ取得時間');
 
     const isLookingForRestaurant = await checkIfLookingForRestaurant(input);
 
@@ -76,13 +70,19 @@ async function processRequest(body: RequestBody) {
       // 自由入力をuserMessagesに保存
       userMessages = input;
 
-      const { data: restaurants, error } = await supabase
-        .from('restaurants')
-        .select('*');
+      // メッセージをログに挿入
+      const { error: insertError } = await supabase
+        .from('user_logs')
+        .insert([{ 
+          user_messages: userMessages,
+          session_id: sessionId,
+          location,
+          situation
+        }]);
 
-      if (error) {
-        console.error('データ取得エラー:', error);
-        return { error: 'データ取得エラー' };
+      if (insertError) {
+        console.error('ログ保存エラー:', insertError);
+        return { error: 'ログ保存エラー' };
       }
 
       const prompt = `
@@ -109,6 +109,7 @@ ${JSON.stringify(restaurants, null, 2)}
 `;
 
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      console.time('AI応答生成時間');
       const aiResponse = await openai.chat.completions.create({
         model: 'gpt-4o-mini',
         messages: [
@@ -116,6 +117,7 @@ ${JSON.stringify(restaurants, null, 2)}
           { role: 'user', content: prompt },
         ],
       });
+      console.timeEnd('AI応答生成時間');
 
       let recommendation = aiResponse.choices[0].message.content;
 
@@ -148,6 +150,19 @@ ${JSON.stringify(restaurants, null, 2)}
       // 自由入力をuserMessagesに保存
       userMessages = input;
 
+      // メッセージをログに挿入
+      const { error: insertError } = await supabase
+        .from('user_logs')
+        .insert([{ 
+          user_messages: userMessages,
+          session_id: sessionId
+        }]);
+
+      if (insertError) {
+        console.error('ログ保存エラー:', insertError);
+        return { error: 'ログ保存エラー' };
+      }
+
       const prompt = `
 ユーザーのインプットに基づいて、祐天寺マンの口調で返答してください：
 
@@ -160,6 +175,7 @@ ${JSON.stringify(restaurants, null, 2)}
 `;
 
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      console.time('AI応答生成時間');
       const aiResponse = await openai.chat.completions.create({
         model: 'gpt-4o-mini',
         messages: [
@@ -167,6 +183,7 @@ ${JSON.stringify(restaurants, null, 2)}
           { role: 'user', content: prompt },
         ],
       });
+      console.timeEnd('AI応答生成時間');
 
       const response = aiResponse.choices[0].message.content;
 
@@ -184,35 +201,32 @@ ${JSON.stringify(restaurants, null, 2)}
     cuisine = body.cuisine || '指定なし';
     situation = body.situation || '指定なし';
     input = `予算: ${budget}, 場所: ${location}, ジャンル: ${cuisine}, シチュエーション: ${situation}`;
+
+    // 新しいログを常に挿入
+    const { error: insertError } = await supabase
+      .from('user_logs')
+      .insert([{ 
+        budget, 
+        location, 
+        genre: cuisine, 
+        situation, 
+        user_messages: userMessages,
+        session_id: sessionId 
+      }]);
+
+    if (insertError) {
+      console.error('ログ保存エラー:', insertError);
+      return { error: 'ログ保存エラー' };
+    }
   }
 
-  // 新しいログを常に挿入
-  const { error: insertError } = await supabase
-    .from('user_logs')
-    .insert([{ 
-      budget, 
-      location, 
-      genre: cuisine, 
-      situation, 
-      user_messages: userMessages,
-      session_id: sessionId 
-    }]);
-
-  if (insertError) {
-    console.error('ログ保存エラー:', insertError);
-    return { error: 'ログ保存エラー' };
-  }
-
-  const { data: restaurants, error } = await supabase
-    .from('restaurants')
-    .select('*');
-
-  if (error) {
-    console.error('データ取得エラー:', error);
-    return { error: 'データ取得エラー' };
-  }
+  // ローカルストレージから送信されたレストランデータを使用
+  console.time('ローカルストレージからのデータ取得時間');
+  const restaurants = body.restaurants || [];
+  console.timeEnd('ローカルストレージからのデータ取得時間');
 
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  console.time('AI応答生成時間');
   const prompt = `
 ${input}
 
@@ -240,6 +254,7 @@ ${JSON.stringify(restaurants, null, 2)}
       { role: 'user', content: prompt },
     ],
   });
+  console.timeEnd('AI応答生成時間');
 
   let recommendation = aiResponse.choices[0].message.content;
 

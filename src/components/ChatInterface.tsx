@@ -82,7 +82,11 @@ export function ChatInterface({ userPreferences, sessionId }: ChatInterfaceProps
       console.log('Sending initial request:', userPreferences);
 
       try {
-        const data = await fetchRecommendation({ ...userPreferences, sessionId });
+        // ローカルストレージからレストランデータを取得
+        const storedRestaurants = localStorage.getItem('restaurants');
+        const restaurants = storedRestaurants ? JSON.parse(storedRestaurants) : [];
+
+        const data = await fetchRecommendation({ ...userPreferences, sessionId, restaurants });
         console.log('Received response:', data);
         setMessages(prevMessages => [
           prevMessages[0],
@@ -115,7 +119,11 @@ export function ChatInterface({ userPreferences, sessionId }: ChatInterfaceProps
     setInput('');
 
     try {
-      const data = await fetchRecommendation({ input: currentInput, sessionId }); // セッションIDを含める
+      // ローカルストレージからレストランデータを取得
+      const storedRestaurants = localStorage.getItem('restaurants');
+      const restaurants = storedRestaurants ? JSON.parse(storedRestaurants) : [];
+
+      const data = await fetchRecommendation({ input: currentInput, sessionId, restaurants }); // セッションIDとレストランデータを含める
       console.log("受け取ったデータ:", data);
 
       const defaultResponse = 'その質問はちょっとわからんけど、他に何か答えるで！';
