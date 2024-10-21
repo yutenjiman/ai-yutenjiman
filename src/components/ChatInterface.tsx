@@ -76,7 +76,7 @@ export function ChatInterface({ userPreferences, sessionId }: ChatInterfaceProps
 
       setMessages([
         { id: 1, content: initialMessage, sender: 'user' },
-        { id: 2, content: 'ちょっと待ってな...', sender: 'ai' }
+        { id: 2, content: 'しばらくお待ちください...', sender: 'ai' }
       ]);
 
       console.log('Sending initial request:', userPreferences);

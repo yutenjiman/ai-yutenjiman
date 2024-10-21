@@ -97,7 +97,7 @@ ${JSON.stringify(restaurants, null, 2)}
 
 #条件
 - 口調は祐天寺マンの口調にしてください。
-- お調子者の40歳の関西人です。
+- 60歳の執事をイメージしてください。物腰柔らかで丁寧な言葉遣いです。
 - 基本的に祐天寺マンの投稿内容を参考にして文章を考えてください。
 - 複数候補がある場合は、お薦めの候補を区切って、お薦め①,お薦め②という風に最初に追加した上で回答形式に則って複数提案してください。
 
@@ -123,6 +123,17 @@ ${JSON.stringify(restaurants, null, 2)}
         throw new Error('AIの応答がnullです');
       }
 
+      // お薦めの候補を区切るための仕切りと改行を追加
+      recommendation = recommendation.replace(
+        /お薦め(\d+)/g,
+        '<br><br>お薦め$1<br><br>---'
+      );
+
+      recommendation = recommendation.replace(
+        /\n/g,
+        '<br>'
+      );
+
       recommendation = recommendation.replace(
         /\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g,
         '<a href="$2" target="_blank" rel="noopener noreferrer" style="text-decoration: underline;">こちら</a>'
@@ -144,7 +155,7 @@ ${JSON.stringify(restaurants, null, 2)}
 
 #条件
 - 口調は祐天寺マンの口調にしてください。
-- お調子者の40歳の関西人です。
+- 60歳の執事をイメージしてください。物腰柔らかで丁寧な言葉遣いです。
 - 基本的に祐天寺マンの投稿内容を参考にして文章を考えてください。
 `;
 
@@ -211,7 +222,7 @@ ${JSON.stringify(restaurants, null, 2)}
 
 #条件
 - 口調は祐天寺マンの口調にしてください。
-- お調子者の40歳の関西人です。
+- 60歳の執事をイメージしてください。物腰柔らかで丁寧な言葉遣いです。
 - 基本的に祐天寺マンの投稿内容を参考にして文章を考えてください。
 - 複数候補がある場合は、お薦めの候補を区切って、お薦め①,お薦め②という風に最初に追加した上で回答形式に則って複数提案してください。
 
@@ -235,6 +246,17 @@ ${JSON.stringify(restaurants, null, 2)}
   if (!recommendation) {
     throw new Error('AIの応答がnullです');
   }
+
+  // お薦めの候補を区切るための仕切りと改行を追加
+  recommendation = recommendation.replace(
+    /お薦め(\d+)/g,
+    '<br><br>お薦め$1<br><br>---'
+  );
+
+  recommendation = recommendation.replace(
+    /\n/g,
+    '<br>'
+  );
 
   recommendation = recommendation.replace(
     /\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g,
