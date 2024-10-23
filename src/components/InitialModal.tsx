@@ -52,7 +52,7 @@ export function InitialModal({ onStartChat }: InitialModalProps) {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4">好みを教えてな</h2>
+      <h2 className="text-2xl font-bold mb-4">好みを教えてください</h2>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <BudgetSelect setValue={(field, value) => setValue(field as "budget", value)} />
         <LocationInput register={(name) => register(name as "location")} />
